@@ -17,17 +17,5 @@
       "path": "/api/clear-uploads",
       "schedule": "0 2 * * *"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production",
-    "PORT": "5001",
-    "CLERK_PUBLISHABLE_KEY": "@clerk_publishable_key",
-    "CLERK_SECRET_KEY": "@clerk_secret_key",
-    "MONGODB_URI": "@mongodb_uri",
-    "ARCJET_ENV": "@arcjet_env",
-    "ARCJET_KEY": "@arcjet_key",
-    "CLOUDINARY_CLOUD_NAME": "@cloudinary_cloud_name",
-    "CLOUDINARY_API_KEY": "@cloudinary_api_key",
-    "CLOUDINARY_API_SECRET": "@cloudinary_api_secret"
-  }
+  ]
 }
