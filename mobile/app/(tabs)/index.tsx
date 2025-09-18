@@ -1,9 +1,17 @@
-import { Text, View } from "react-native";
+import SignOutButton from '@/components/SignOutButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function TabsHome() {
+import { View, Text } from 'react-native'
+import React from 'react'
+
+const HomeScreen = () => {
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-black">Tabs Home</Text>
-    </View>
+    <SafeAreaView className="flex-1 bg-white">
+      
+      <Text className="text-black">HomeScreen</Text>
+        <SignOutButton />
+    </SafeAreaView>
   );
-}
+};
+
+export default HomeScreen;
