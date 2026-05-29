@@ -27,32 +27,55 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: mobile/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate Clerk publishable key
+      - name: Resolve Clerk publishable key
+        id: clerk
         env:
-          CLERK_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          SECRET_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          VAR_KEY: ${{ vars.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          ALT_SECRET: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
         run: |
-          if [ -z "$CLERK_KEY" ]; then
-            echo "::error::Add repository secret EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY (Clerk Dashboard → API Keys → Publishable key)"
-            exit 1
+          KEY=""
+          for candidate in "$SECRET_KEY" "$VAR_KEY" "$ALT_SECRET"; do
+            if [ -n "$candidate" ]; then
+              KEY="$candidate"
+              break
+            fi
+          done
+          if [ -z "$KEY" ] && [ -f clerk.publishable.key ]; then
+            KEY="$(tr -d '[:space:]' < clerk.publishable.key)"
           fi
-          case "$CLERK_KEY" in
-            pk_test_*|pk_live_*) ;;
-            *) echo "::error::EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY must start with pk_test_ or pk_live_"; exit 1 ;;
-          esac
+          if [ -n "$KEY" ]; then
+            case "$KEY" in
+              pk_test_*|pk_live_*) ;;
+              *)
+                echo "::warning::Clerk key should start with pk_test_ or pk_live_; building anyway"
+                ;;
+            esac
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "key=$KEY" >> "$GITHUB_OUTPUT"
+            echo "Clerk publishable key resolved for build."
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No Clerk key found. The site will deploy with a setup message instead of login."
+            echo "Add ONE of:"
+            echo "  - Actions secret: EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
+            echo "  - Repository variable: EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
+            echo "  - File in repo: mobile/clerk.publishable.key (copy from clerk.publishable.key.example)"
+          fi
 
       - name: Export static web app
         run: npm run build:web
         env:
           EXPO_BASE_URL: /Rapture
           EXPO_PUBLIC_BASE_PATH: /Rapture
-          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ steps.clerk.outputs.key }}
           EXPO_PUBLIC_API_URL: https://rapture-olive.vercel.app/api
 
       - name: Add GitHub Pages helpers

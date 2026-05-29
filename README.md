@@ -149,8 +149,19 @@ The **mobile** app is deployed as a static Expo web build to GitHub Pages on eve
 
 1. Open the repo on GitHub → **Settings** → **Pages**.
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Add a repository secret (required — without it the site stays blank):
-   - `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clerk **publishable** key from [Clerk Dashboard → API Keys](https://dashboard.clerk.com/last-active?path=api-keys) (starts with `pk_test_` or `pk_live_`).
+3. Provide your Clerk **publishable** key (`pk_test_...` or `pk_live_...` from [API Keys](https://dashboard.clerk.com/last-active?path=api-keys)) using **any one** of these:
+
+   **Option A — file (easiest)**  
+   Copy `mobile/clerk.publishable.key.example` → `mobile/clerk.publishable.key`, paste your key, commit, and push. (Publishable keys are safe to commit; they are public by design.)
+
+   **Option B — GitHub secret**  
+   Settings → Secrets and variables → Actions → New repository secret  
+   Name: `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
+
+   **Option C — repository variable**  
+   Settings → Secrets and variables → Actions → Variables → New variable  
+   Name: `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
+
 4. In Clerk Dashboard → **Configure** → **Domains**, add:
    - `https://lokeshpuma.github.io`
 5. Under **Paths** / redirect URLs, allow:
