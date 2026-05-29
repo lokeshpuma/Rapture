@@ -37,4 +37,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+# build output (deployed via GitHub Actions, not committed)
+dist/
+web-build/

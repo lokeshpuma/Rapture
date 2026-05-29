@@ -139,3 +139,31 @@ npm run reset-project # Reset the project template
 - Real-time notifications
 - Dark mode support
 
+## GitHub Pages (mobile web)
+
+The **mobile** app is deployed as a static Expo web build to GitHub Pages on every push to `master` / `main`.
+
+**Live URL:** [https://lokeshpuma.github.io/Rapture/](https://lokeshpuma.github.io/Rapture/)
+
+### One-time GitHub setup
+
+1. Open the repo on GitHub → **Settings** → **Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. Add a repository secret:
+   - `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` — your Clerk publishable key (same as in local `.env`).
+
+Push to `master` to run the [deploy workflow](.github/workflows/deploy-github-pages.yml). The workflow builds `mobile/` with `npm run build:web` and publishes the `dist/` output.
+
+### Local web build (same as CI)
+
+```bash
+cd mobile
+cp .env.example .env   # fill in keys
+npm install
+EXPO_BASE_URL=/Rapture npm run build:web
+```
+
+Output is in `mobile/dist/` (gitignored). Preview with any static server, e.g. `npx serve dist`.
+
+The **backend** (`backend/src/`) is deployed separately (e.g. Vercel); it is not served from GitHub Pages.
+
