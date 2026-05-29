@@ -149,10 +149,14 @@ The **mobile** app is deployed as a static Expo web build to GitHub Pages on eve
 
 1. Open the repo on GitHub → **Settings** → **Pages**.
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-3. Add a repository secret:
-   - `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` — your Clerk publishable key (same as in local `.env`).
+3. Add a repository secret (required — without it the site stays blank):
+   - `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clerk **publishable** key from [Clerk Dashboard → API Keys](https://dashboard.clerk.com/last-active?path=api-keys) (starts with `pk_test_` or `pk_live_`).
+4. In Clerk Dashboard → **Configure** → **Domains**, add:
+   - `https://lokeshpuma.github.io`
+5. Under **Paths** / redirect URLs, allow:
+   - `https://lokeshpuma.github.io/Rapture/oauth-native-callback`
 
-Push to `master` to run the [deploy workflow](.github/workflows/deploy-github-pages.yml). The workflow builds `mobile/` with `npm run build:web` and publishes the `dist/` output.
+Push to `master` to run the [deploy workflow](.github/workflows/deploy-github-pages.yml). Open **https://lokeshpuma.github.io/Rapture/** (include `/Rapture/` — the root `github.io` URL is not this app).
 
 ### Local web build (same as CI)
 

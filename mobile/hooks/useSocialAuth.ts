@@ -1,7 +1,7 @@
 import { useSSO } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
-import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
+import { getOAuthRedirectUrl } from "@/utils/redirectUrl";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
@@ -22,7 +22,7 @@ export const useSocialAuth = () => {
     setIsLoading(true);
     try {
       // Use Clerk's recommended callback path for Expo
-      const redirectUrl = Linking.createURL("/oauth-native-callback", { scheme: "mobile" });
+      const redirectUrl = getOAuthRedirectUrl();
       const { createdSessionId, setActive } = await startSSOFlow({ strategy, redirectUrl });
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });

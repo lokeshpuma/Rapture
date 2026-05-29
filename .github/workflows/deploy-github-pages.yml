@@ -34,15 +34,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate Clerk publishable key
+        env:
+          CLERK_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$CLERK_KEY" ]; then
+            echo "::error::Add repository secret EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY (Clerk Dashboard → API Keys → Publishable key)"
+            exit 1
+          fi
+          case "$CLERK_KEY" in
+            pk_test_*|pk_live_*) ;;
+            *) echo "::error::EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY must start with pk_test_ or pk_live_"; exit 1 ;;
+          esac
+
       - name: Export static web app
         run: npm run build:web
         env:
           EXPO_BASE_URL: /Rapture
+          EXPO_PUBLIC_BASE_PATH: /Rapture
           EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           EXPO_PUBLIC_API_URL: https://rapture-olive.vercel.app/api
 
       - name: Add GitHub Pages helpers
-        run: touch dist/.nojekyll
+        run: |
+          touch dist/.nojekyll
+          cp dist/index.html dist/404.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
