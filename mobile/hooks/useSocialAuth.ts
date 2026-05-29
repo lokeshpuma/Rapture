@@ -3,15 +3,17 @@ import * as WebBrowser from "expo-web-browser";
 import { useRouter } from "expo-router";
 import { getOAuthRedirectUrl } from "@/utils/redirectUrl";
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export const useSocialAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { startSSOFlow } = useSSO();
   const router = useRouter();
 
-  WebBrowser.maybeCompleteAuthSession();
   useEffect(() => {
+    if (Platform.OS === "web") return;
     WebBrowser.warmUpAsync();
     return () => {
       WebBrowser.coolDownAsync();
@@ -21,9 +23,14 @@ export const useSocialAuth = () => {
   const handleSocialAuth = async (strategy: "oauth_google" | "oauth_apple") => {
     setIsLoading(true);
     try {
-      // Use Clerk's recommended callback path for Expo
       const redirectUrl = getOAuthRedirectUrl();
       const { createdSessionId, setActive } = await startSSOFlow({ strategy, redirectUrl });
+
+      // On web the browser navigates away; oauth-native-callback completes the flow.
+      if (Platform.OS === "web") {
+        return;
+      }
+
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
         router.replace("/(tabs)");
@@ -31,9 +38,16 @@ export const useSocialAuth = () => {
     } catch (err) {
       console.log("Error in social auth", err);
       const provider = strategy === "oauth_google" ? "Google" : "Apple";
-      Alert.alert("Error", `Failed to sign in with ${provider}. Please try again.`);
+      const message = `Failed to sign in with ${provider}. Please try again.`;
+      if (Platform.OS === "web") {
+        window.alert(message);
+      } else {
+        Alert.alert("Error", message);
+      }
     } finally {
-      setIsLoading(false);
+      if (Platform.OS !== "web") {
+        setIsLoading(false);
+      }
     }
   };
 
